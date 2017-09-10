@@ -1,7 +1,10 @@
+body{
+    margin: 0px;
+}
 .app {
     background-color: #000;
     color: #fff;
-    padding: 50px;
+
     text-align: center;
 }
 
@@ -13,6 +16,8 @@
     animation: spin 10s linear infinite;
 }
 
+
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -20,4 +25,30 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+
+/*ublockMe*/
+.gameBoardDiv{
+    width: 96vw;
+    height: 96vw;
+    background-color: darkslategrey;
+}
+.unBlock_startingPiece{
+    position: absolute;
+    top: 32vw;
+    width: 32vw;
+    height: 16vw;
+    background-color: orange;
+}
+
+.unBlock_widePiece{
+    width: 32vw;
+    height: 16vw;
+    background-color: darkolivegreen;
+}
+.unBlock_tallPiece{
+    width: 16vw;
+    height: 32vw;
+    background-color: blueviolet;
 }
