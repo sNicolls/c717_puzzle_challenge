@@ -1,28 +1,46 @@
 import React, { Component } from 'react';
+import CreatePiece from './pieceCreator';
 import Draggable from 'react-draggable';
 
 export default class CreationStation extends Component{
     constructor(props){
         super(props);
         this.state = {
-            tallPieces: [
-                <Draggable>
-                    <div className="unBlock_longPiece"></div>
-                </Draggable>,
-            ]
-        }
+            tallPieceCount: 0,
+            longPieceCount: 0,
+            tallPieceAxis: "both",
+            longPieceAxis: "both"
+        };
+        this.createTallPiece = this.createTallPiece.bind(this);
+        this.createLongPiece = this.createLongPiece.bind(this);
+        this.instantiateGame = this.instantiateGame.bind(this);
+    }
+
+    createTallPiece(){
+        this.setState({
+            tallPieceCount: this.state.tallPieceCount + 1
+        });
     }
 
     createLongPiece(){
         this.setState({
-            tallPieces: (
-                <Draggable>
-                    <div className="unBlock_longPiece"></div>
-                 </Draggable>
-            )
-        })
+            longPieceCount: this.state.longPieceCount + 1
+        });
     }
 
+    instantiateGame(ev){
+        // this.setState({
+        //     tallPieceAxis: "y",
+        //     longPieceAxis: "x"
+        // })
+
+        const tallPiece = document.getElementsByClassName("unBlock_tallPiece");
+        tallPiece.map(function(item, index){
+            console.log(item.getBoundingClientRect())
+        })
+        console.log(tallPiece)
+       // console.log(tallPiece.getBoundingClientRect());
+    }
 
     render(){
         return (
@@ -32,19 +50,13 @@ export default class CreationStation extends Component{
                         <div className="unBlock_startingPiece">
                         </div>
                     </Draggable>
+                    <CreatePiece tallPieceCount={this.state.tallPieceCount} longPieceCount={this.state.longPieceCount} tallPieceAxis={this.state.tallPieceAxis} longPieceAxis={this.state.longPieceAxis}/>
                 </div>
-                <div className="piecePenDiv">
-                    {this.state.tallPieces.map(function(item, index){
-                        return item
-                    })}
-                    {/*{this.state.longPieceCount}*/}
-                    {/*{this.state.blockPieceCount}*/}
-                </div>
+
                 <button className="btn-success" onClick={this.createTallPiece}>TallPiece</button>
                 <button className="btn-success" onClick={this.createLongPiece}>LongPiece</button>
                 <button className="btn-success" onClick={this.createRoadBlock}>Block</button>
-                {/*<div className="unBlock_tallPiece"></div>*/}
-                {/*<div className="unBlock_widePiece"></div>*/}
+                <button className="btn-success" onClick={this.instantiateGame}>Play</button>
             </div>
         )
     }

@@ -38,12 +38,12 @@ body{
 .gameArea{
     padding: 0;
     width: 96vw;
-    height: 118vw;
+    height: 96vw;
     background-color: blue;
 }
-.piecePenDiv{
+.pieceDiv{
     width: 96vw;
-    height: 22vw;
+    height: 96vw;
 }
 .unBlock_startingPiece{
     position: absolute;
@@ -54,11 +54,13 @@ body{
 }
 
 .unBlock_longPiece{
+    position: absolute;
     width: 32vw;
     height: 16vw;
     background-color: darkolivegreen;
 }
 .unBlock_tallPiece{
+    position: absolute;
     width: 16vw;
     height: 32vw;
     background-color: blueviolet;
