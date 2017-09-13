@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import CreatePiece from './pieceCreator';
 import Draggable from 'react-draggable';
+import GameBoard from './gameBoard'
 import PlayGame from './play';
 
 export default class CreationStation extends Component{
@@ -11,11 +12,13 @@ export default class CreationStation extends Component{
             longPieceCount: 0,
             tallPieceAxis: "both",
             longPieceAxis: "both",
-            mode: 'create'
+            mode: 'create',
+            pieceArray: [<div className="unBlock_tallPiece"></div>, <div className="unBlock_tallPiece"></div>]
         };
         this.createTallPiece = this.createTallPiece.bind(this);
         this.createLongPiece = this.createLongPiece.bind(this);
         this.instantiateGame = this.instantiateGame.bind(this);
+
     }
 
     createTallPiece(){
@@ -23,7 +26,6 @@ export default class CreationStation extends Component{
             tallPieceCount: this.state.tallPieceCount + 1
         });
     }
-
     createLongPiece(){
         this.setState({
             longPieceCount: this.state.longPieceCount + 1
@@ -43,33 +45,24 @@ export default class CreationStation extends Component{
         //console.log(tallPiece)
        // console.log(tallPiece.getBoundingClientRect());
 
-
         this.setState({
-            mode: "play"
+            mode: "play",
         })
     }
 
     render(){
-
-
-        if (this.state.mode === "create") {
+        const {longPieceCount, tallPieceCount} = this.state;
+        if (this.state.mode === "create"){
             return (
                 <div className="container gameArea">
-                    <div className="gameBoardDiv">
-                        <Draggable axis="x" bounds='parent'>
-                            <div className="unBlock_startingPiece">
-                            </div>
-                        </Draggable>
-                        <CreatePiece tallPieceCount={this.state.tallPieceCount} longPieceCount={this.state.longPieceCount} tallPieceAxis={this.state.tallPieceAxis} longPieceAxis={this.state.longPieceAxis}/>
-                    </div>
-
+                    <GameBoard tallPieceCount={tallPieceCount} longPieceCount={longPieceCount}/>
                     <button className="btn-success" onClick={this.createTallPiece}>TallPiece</button>
                     <button className="btn-success" onClick={this.createLongPiece}>LongPiece</button>
                     <button className="btn-success" onClick={this.createRoadBlock}>Block</button>
                     <button className="btn-success" onClick={this.instantiateGame}>Play</button>
                 </div>
             )
-        }else if(this.state.mode === "play"){
+        }else if (this.state.mode === "play"){
             return(
                 <div className="container gameArea">
                     <div className="gameBoardDiv">
@@ -77,7 +70,7 @@ export default class CreationStation extends Component{
                             <div className="unBlock_startingPiece">
                             </div>
                         </Draggable>
-                        <PlayGame ref="playGame" tallPieces={document.getElementsByClassName("unBlock_tallPiece")}
+                        <PlayGame tallPieces={document.getElementsByClassName("unBlock_tallPiece")}
                                   longPieces={document.getElementsByClassName("unBlock_longPiece")}/>
                     </div>
                     <button className="btn-success" onClick={this.instantiateGame}>Play</button>
@@ -86,3 +79,5 @@ export default class CreationStation extends Component{
         }
     }
 }
+
+{/*<CreatePiece tallPieceCount={this.state.tallPieceCount} longPieceCount={this.state.longPieceCount} tallPieceAxis={this.state.tallPieceAxis} longPieceAxis={this.state.longPieceAxis}/>*/}

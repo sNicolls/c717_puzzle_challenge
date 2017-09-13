@@ -7,6 +7,6 @@ import LandingPage from './components/landingPage/landingPage'
 import App from './components/app';
 
 ReactDOM.render(
-    <LandingPage/>,
+    <UnBlock_app/>,
     document.getElementById('root')
 );

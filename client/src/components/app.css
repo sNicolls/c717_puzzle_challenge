@@ -30,6 +30,9 @@ body{
 
 /*ublockMe*/
 .gameBoardDiv{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     width: 96vw;
     height: 96vw;
     background-color: darkslategrey;
@@ -46,10 +49,9 @@ body{
     height: 96vw;
 }
 .unBlock_startingPiece{
-    position: absolute;
-    top: 32vw;
-    width: 32vw;
-    height: 16vw;
+    /*top: 32vw;*/
+    grid-column: 1/3;
+    grid-row: 3/4;
     background-color: orange;
 }
 

@@ -1,14 +1,25 @@
 import React from 'react';
 
 export default (props) => {
+    const longPieceArr = [];
+    const tallPieceArr = [];
     const {longPieces, tallPieces} = props;
-    console.log("This is our longPieces ", longPieces);
-    console.log("These are the this.refs.playGame ", this.refs);
-    const varrr = longPieces.map((piece) =>{
-        {piece}
-    });
-    console.log(varrr);
-    return(
-        <div>{varrr}</div>
-    )
+
+
+
+    console.log(longPieces[0].style.transform)
+
+    // for(var i = 0; i < longPieces.length; i++){
+    //     longPieceArr.push({
+    //         pieceType: "long",
+    //         xPos: ,
+    //         yPos:
+    //     })
+    // }
+
+    return(<h1>HEYY</h1>)
 }
+
+
+// longPieces[0].getBoundingClientRect().top)
+

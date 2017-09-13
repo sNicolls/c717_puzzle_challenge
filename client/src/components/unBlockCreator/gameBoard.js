@@ -1,33 +1,40 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 
-export default class GameBoard extends Component{
+export default class extends Component {
     constructor(props){
-        super(props)
+        super(props);
+
+    }
+    createLongPiece(){
+        pieceArray.push(<div className="unBlock_longPiece"></div>)
+    }
+    createTallPiece(){
+        pieceArray.push(<div className="unBlock_tallPiece"></div>)
     }
 
-    drag(ev){
-        ev.dataTransfer.setData("text", ev.target.id)
-    }
-    drop(ev) {
-        ev.preventDefault();
-        var data = ev.DataTransfer.getData()
-        ev.target.appendChild(document.getElementById(data));
-    }
-    render(){
+
+render() {
+        const { tallPieceCount, longPieceCount } = this.props;
+
+        const pieceArray = [];
         return (
-            <div className="container">
-                <div className="gameBoardDiv" onDrop={props.drop}>
-                    <Draggable axis="x" bounds='parent'>
-                        <div className="unBlock_startingPiece">
-                        </div>
-                    </Draggable>
-                </div>
-                <div className="piecePenDiv">
-                    <div className="unBlock_tallPiece" draggable="true" onDragStart={drag(ev)}></div>
-                    <div className="unBlock_widePiece"></div>
-                </div>
+            <div className="gameBoardDiv">
+                <Draggable axis="x" bounds='parent'>
+                    <div className="unBlock_startingPiece"></div>
+                </Draggable>
+                {longPieceCount}
             </div>
         )
     }
 }
+
+
+
+
+
+
+
+
+
+
