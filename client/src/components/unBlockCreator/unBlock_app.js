@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CreationStation from './creationStation';
+import Play from './play'
 
 
 export default class extends Component {
@@ -9,7 +10,7 @@ export default class extends Component {
 
     render() {
         return (
-            <CreationStation />
+            <Play />
         )
     }
 }

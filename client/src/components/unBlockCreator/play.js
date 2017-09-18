@@ -1,25 +1,16 @@
-import React from 'react';
-
-export default (props) => {
-    const longPieceArr = [];
-    const tallPieceArr = [];
-    const {longPieces, tallPieces} = props;
+import React, { Component } from 'react';
+import GameBoard from './gameBoard'
+import { playableStack } from './constants'
 
 
-
-    console.log(longPieces[0].style.transform)
-
-    // for(var i = 0; i < longPieces.length; i++){
-    //     longPieceArr.push({
-    //         pieceType: "long",
-    //         xPos: ,
-    //         yPos:
-    //     })
-    // }
-
-    return(<h1>HEYY</h1>)
+export default class extends Component{
+    render(){
+        return(
+            <GameBoard pieceStack={playableStack}/>
+        )
+    }
 }
 
 
-// longPieces[0].getBoundingClientRect().top)
+
 

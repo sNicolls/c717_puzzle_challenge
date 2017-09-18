@@ -49,16 +49,12 @@ body{
     height: 96vw;
 }
 .unBlock_startingPiece{
-    /*top: 32vw;*/
     grid-column: 1/3;
     grid-row: 3/4;
     background-color: orange;
 }
 
 .unBlock_longPiece{
-    position: absolute;
-    width: 32vw;
-    height: 16vw;
     background-color: darkolivegreen;
 }
 .unBlock_tallPiece{

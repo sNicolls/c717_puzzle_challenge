@@ -3,36 +3,26 @@ import CreatePiece from './pieceCreator';
 import Draggable from 'react-draggable';
 import GameBoard from './gameBoard'
 import PlayGame from './play';
+import { pieceStack } from './constants'
 
-export default class CreationStation extends Component{
-    constructor(props){
+export default class CreationStation extends Component {
+    constructor(props) {
         super(props);
-        this.state = {
-            tallPieceCount: 0,
-            longPieceCount: 0,
-            tallPieceAxis: "both",
-            longPieceAxis: "both",
-            mode: 'create',
-            pieceArray: [<div className="unBlock_tallPiece"></div>, <div className="unBlock_tallPiece"></div>]
-        };
+        this.state = {};
         this.createTallPiece = this.createTallPiece.bind(this);
         this.createLongPiece = this.createLongPiece.bind(this);
         this.instantiateGame = this.instantiateGame.bind(this);
-
     }
 
-    createTallPiece(){
-        this.setState({
-            tallPieceCount: this.state.tallPieceCount + 1
-        });
-    }
-    createLongPiece(){
-        this.setState({
-            longPieceCount: this.state.longPieceCount + 1
-        });
+    createTallPiece() {
+        pieceStack.push({type: "tall", xPos: 0, yPos: 0})
     }
 
-    instantiateGame(ev){
+    createLongPiece() {
+        pieceStack.push({type: "long", xPos: 0, yPos: 0})
+    }
+
+    instantiateGame(ev) {
         // this.setState({
         //     tallPieceAxis: "y",
         //     longPieceAxis: "x"
@@ -43,41 +33,23 @@ export default class CreationStation extends Component{
         //     console.log(item.getBoundingClientRect())
         // })
         //console.log(tallPiece)
-       // console.log(tallPiece.getBoundingClientRect());
+        // console.log(tallPiece.getBoundingClientRect());
 
         this.setState({
             mode: "play",
         })
     }
 
-    render(){
-        const {longPieceCount, tallPieceCount} = this.state;
-        if (this.state.mode === "create"){
-            return (
-                <div className="container gameArea">
-                    <GameBoard tallPieceCount={tallPieceCount} longPieceCount={longPieceCount}/>
-                    <button className="btn-success" onClick={this.createTallPiece}>TallPiece</button>
-                    <button className="btn-success" onClick={this.createLongPiece}>LongPiece</button>
-                    <button className="btn-success" onClick={this.createRoadBlock}>Block</button>
-                    <button className="btn-success" onClick={this.instantiateGame}>Play</button>
-                </div>
-            )
-        }else if (this.state.mode === "play"){
-            return(
-                <div className="container gameArea">
-                    <div className="gameBoardDiv">
-                        <Draggable axis="x" bounds='parent'>
-                            <div className="unBlock_startingPiece">
-                            </div>
-                        </Draggable>
-                        <PlayGame tallPieces={document.getElementsByClassName("unBlock_tallPiece")}
-                                  longPieces={document.getElementsByClassName("unBlock_longPiece")}/>
-                    </div>
-                    <button className="btn-success" onClick={this.instantiateGame}>Play</button>
-                </div>
-            )
-        }
+    render() {
+
+        return (
+            <div className="container gameArea">
+                <GameBoard pieceStack={pieceStack}/>
+                <button className="btn-success" onClick={this.createTallPiece}>TallPiece</button>
+                <button className="btn-success" onClick={this.createLongPiece}>LongPiece</button>
+                <button className="btn-success" onClick={this.createRoadBlock}>Block</button>
+                <button className="btn-success" onClick={this.instantiateGame}>Play</button>
+            </div>
+        )
     }
 }
-
-{/*<CreatePiece tallPieceCount={this.state.tallPieceCount} longPieceCount={this.state.longPieceCount} tallPieceAxis={this.state.tallPieceAxis} longPieceAxis={this.state.longPieceAxis}/>*/}
