@@ -36,9 +36,7 @@ export default class extends Component {
             tallPieceWidth: oneBoardUnit,
             longPieceHeight: oneBoardUnit,
             longPieceWidth: oneBoardUnit*2
-
         })
-
     }
 
     handleDrag(ev){
@@ -55,21 +53,20 @@ export default class extends Component {
             piecePosArr.push(pieces[i].getBoundingClientRect())
         }
 
-
         piecePosArr.map((piecePos, index)=>{
 
              if(index == thisPieceIndex){
 
-             } else if (thisPiecePos.right - piecePos.left > 1 && thisPiecePos.right - piecePos.left < -1){
-                 console.log(thisPiecePos.right)
+             } else if (thisPiecePos.right - piecePos.left > 1){
                  this.setState({
-                     holderX: thisPiecePos.right
+                     needsReset: true,
+                     posToResetTo: piecePos.left,
                  })
             }
         });
 
 
-        if(starterPiecePos.right + starterPiecePos.width > 408){
+        if(this.state.needsReset === false && starterPiecePos.right + starterPiecePos.width > 408){
             console.log("WIN")
         }
         //WIN CONDITION!!!!!!
@@ -81,12 +78,20 @@ export default class extends Component {
 
 
     handleEnd(ev){
-        console.log(ev.target.getBoundingClientRect().right)
-        this.setState({
-            mainX: this.state.holderX - ev.target.getBoundingClientRect().right
-        })
 
-        console.log(this.state.holderX)
+        if(this.state.needsReset === true){
+            console.log("RESETTING")
+            this.setState({
+                mainX: this.state.posToResetTo - ev.target.getBoundingClientRect().right,
+                needsReset: false,
+            })
+
+        }
+        // this.setState({
+        //
+        // })
+        //
+        // console.log(this.state.holderX)
     }
 render() {
     const pieceArr = [];
