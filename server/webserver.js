@@ -63,7 +63,7 @@ webserver.post('/login', function(req, res){
     //check if the user is in the database, if not add them to it
     var query = `SELECT * FROM users WHERE facebook_u_id='${facebook_uid}'`;
     pool.query(query, (err,rows,fields) => {
-        console.log("Here are the rows: ", rows);
+        //console.log("Here are the rows: ", rows);
         if(rows.length === 0){
             query = `INSERT INTO users (facebook_u_id) VALUES (${facebook_uid})`;
             pool.query(query, function(error, results){
@@ -73,6 +73,37 @@ webserver.post('/login', function(req, res){
         }
     });
     res.end("Successful Login");
+});
+
+webserver.post('/wordguess', function(req,res){
+    response = {
+        success: false,
+        errors: []
+    };
+    if(!req.session.userid){
+        console.log("wordguess store attempt without login");
+        response.errors.push("You must be logged in to store puzzles");
+        res.end(JSON.stringify(response));
+    }
+    else{
+        var query = `SELECT u_id FROM users WHERE facebook_u_id= '${req.session.userid}'`;
+        pool.query(query, (err,rows,fields) => {
+            if(err) {
+                console.log("There was an error with the u_id lookup using the session userid: ", err);
+                return;
+            }
+            if(rows.length !== 1){
+                console.log("Multiple rows or no rows with that facebook_u_id");
+                return;
+            }
+            var query = `INSERT INTO puzzles (puzzle_name,`
+
+        });
+        console.log("req.body is: ", req.body);
+        //create new entry in puzzles table
+        var query =
+    }
+
 });
 
 webserver.post('/create/word_guessing', function(req, res){

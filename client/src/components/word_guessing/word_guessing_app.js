@@ -21,9 +21,7 @@ class WordGuessingApp extends Component {
                 title : "Test Title"
             }
         }
-        this.BASE_URL = 'http://localhost:4000/puzzles';
-        this.QUERY_KEY = 'retrieve';
-        this.QUERY_VAL = 'recent10';
+        this.storeGameInfo = this.storeGameInfo.bind(this);
     }
     changeVisibility() {
         if (this.state.testStyle.display === "block") {
@@ -57,6 +55,14 @@ class WordGuessingApp extends Component {
             },
         })
     }
+    storeGameInfo(){
+        console.log("storeGameInfo was called");
+        axios.post(SERVER_BASE_ADDRESS + '/wordguess', this.state.gameInfo).then(function(response){
+            //maybe find a way to indicate on the create page that the puzzle has been submitted successfully
+            //Also find a way to do this in react.
+            window.location = SERVER_BASE_ADDRESS + '/create';
+        });
+    }
     render() {
         console.log("App State", this.state)
         const { testStyle, createStyle, gameInfo } = this.state
@@ -75,7 +81,7 @@ class WordGuessingApp extends Component {
                     <WordGuessingTestPlay gameInfo={gameInfo}/>    
                     <div className="play-test">
                         <button className="btn btn-outline-primary m-2" onClick={this.changeVisibility} style={createStyle}>Back To Edit</button>
-                        <button className="btn btn-outline-danger m-2" style={createStyle}>Submit</button>
+                        <button className="btn btn-outline-danger m-2" style={createStyle} onClick={this.storeGameInfo}>Submit</button>
                     </div>
                 </div>
             )
