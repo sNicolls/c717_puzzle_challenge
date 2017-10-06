@@ -202,7 +202,7 @@ function getPuzzleInfoFromPuzzleURL(url_ext, callback){
         if(err) {
             callback(false, err);
         } else {
-            callback(rows[0].u_id);
+            callback(rows[0]);
         }
     });    
 }
@@ -615,7 +615,7 @@ webserver.post('/puzzleComplete', function(req, res){
     let user_id  = HARDCODED_ID;
     // console.log(req.body);
     getPuzzleInfoFromPuzzleURL(data.queryID, puzzleData =>{
-        console.log(puzzleData);
+        console.log("PUZZLE INFO : " + puzzleData);
         getUserIDFromFacebookID(req.session.userid, user_id => {
             if(!checkUserLoggedIn(user_id, res)){}
             getPuzzleCompletionsByUser(user_id, puzzleData.p_id, (completionData)=>{
