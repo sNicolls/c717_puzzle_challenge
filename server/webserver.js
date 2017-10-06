@@ -606,7 +606,7 @@ webserver.post('/savepuzzle', function(req, res){
     })
 });
 webserver.post('/puzzleComplete', function(req, res){
-    if(checkUserLoggedIn(req.session.userid, res)){
+    if(!checkUserLoggedIn(req.session.userid, res)){
         return;
     }
     let data = req.body;
