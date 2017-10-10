@@ -13,16 +13,19 @@ function PlayCheckModal(props) {
                         <p className="card-text">  
                             You won in {props.info[0]} seconds!
                         </p>
+                        <p className="card-text">
+                            {props.error ? props.error : 'Your time has been submitted!'}
+                        </p>
                         <button type="button" onClick={props.closeModal} className="m-2 btn btn-outline-danger">Close</button>
                     </div>
                 </div>
             </div>
         )
     } else {
-        const Issues = props.info.map((subArr, index) => {
-            return subArr.map((item, index) => {
+        const Issues = props.info.map((item, index) => {
+            if (item.length) {
                 return <li key={index} className="list-group-item">{item}</li>
-            })
+            }
         });
         return (
             <div className={props.showModal}>

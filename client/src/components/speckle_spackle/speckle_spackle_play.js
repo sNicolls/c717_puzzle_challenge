@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
 import GameGridPlay from './game_grid_play';
 import PlayCheckModal from './play_check_modal';
-import axios from 'axios';
+import Axios from 'axios';
 import './speckle_spackle_style.css';
+
+Axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:4000'
+Axios.defaults.withCredentials = true;
 
 class SpeckleSpacklePlay extends Component {
     constructor(props) {
@@ -11,6 +14,7 @@ class SpeckleSpacklePlay extends Component {
         this.state = {
             modalInfo : null,
             showModal : "noModal",
+            error_handler : null,
             timer : 0,
             gameInfo : null
         }
@@ -25,13 +29,17 @@ class SpeckleSpacklePlay extends Component {
 
         this.URL_EXT = '/puzzles';
         this.QUERY_KEY = 'url_ext';
-        this.QUERY_VAL = props.location.pathname.substr(22);
+        this.QUERY_VAL = props.match.params.game_id;
+        this.POST_URL_EXT = '/puzzleComplete';
+        this.queryID = null;
 
         this.gridIndexCallback = this.gridIndexCallback.bind(this);
         this.updateData = this.updateData.bind(this);
         this.updateTimer = this.updateTimer.bind(this);
         this.evaluateAnswer = this.evaluateAnswer.bind(this);
         this.close = this.close.bind(this);
+        this.successfulSubmit = this.successfulSubmit.bind(this);
+        this.failedSubmit = this.failedSubmit.bind(this);
     }
 
     componentWillMount() {
@@ -40,17 +48,19 @@ class SpeckleSpacklePlay extends Component {
     }
 
     getData() {
-        axios.get(this.URL_EXT + '?' + this.QUERY_KEY + '=' + this.QUERY_VAL).then(this.updateData).catch(err => {
+        Axios.get(this.URL_EXT + '?' + this.QUERY_KEY + '=' + this.QUERY_VAL).then(this.updateData).catch(err => {
             console.log("Error Loading Puzzle: ", err);
         });
     }
 
     updateData(response){
-        const receivedData = response.data.data;
-        const receivedGameInfo = JSON.parse(receivedData[0].puzzle_object);
-        receivedGameInfo.gameInfo.gameGrid = this.resetSquares([...receivedGameInfo.gameInfo.gameGrid])
+        const receivedData = response.data.data[0];
+        const receivedGameInfo = JSON.parse(receivedData.puzzle_object);
+        this.queryID = receivedData.url_ext
+        receivedGameInfo.gameGrid = this.resetSquares([...receivedGameInfo.gameGrid])
+        this.props.updateCurrentPath("speckle_spackle_play", receivedData.puzzle_name, 'play', [this.evaluateAnswer]);
         this.setState({
-            gameInfo : receivedGameInfo['gameInfo']
+            gameInfo : receivedGameInfo
         });
     }
 
@@ -95,6 +105,7 @@ class SpeckleSpacklePlay extends Component {
         this.setState({
             showModal: "noModal"
         })
+        setTimeout(()=> this.removeErrors(), 1800)
     }
 
     gridIndexCallback(index) {
@@ -119,12 +130,39 @@ class SpeckleSpacklePlay extends Component {
         const topLog = this.checkTopClues(gameInfo, outerGridSize);
         const bottomLog = this.checkBottomClues(gameInfo, outerGridSize);
         if (rowLog.length !== 0 || columnLog.length !== 0 || leftLog.length !== 0 || rightLog.length !== 0 || topLog.length !== 0 || bottomLog.length !== 0) {
+            let duplicate = false;
+            let missing = false;
+            let clue = false;
+            const arrayOfArrays = rowLog.concat(columnLog, leftLog, rightLog, topLog, bottomLog);
+            console.log(arrayOfArrays)
+            for (let i = 0; i < arrayOfArrays.length; i++) {
+                switch (arrayOfArrays[i].errorType) {
+                    case 'clue':
+                        clue = 'Not all clue conditions are met';
+                        break;
+                    case 'duplicate':
+                        duplicate = 'You have duplicate colors in rows or columns';
+                        console.log(document.getElementsByClassName(arrayOfArrays[i].location));
+                        const duplicateColors = document.getElementsByClassName(arrayOfArrays[i].location);
+                        for (let k = 1; k < duplicateColors.length-1; k++) {
+                            duplicateColors[k].style.borderColor = "red"
+                        }
+                        break;
+                    case 'missing':
+                        missing = 'You are missing colors in rows or columns';
+                        const missingColors = document.getElementsByClassName(arrayOfArrays[i].location);
+                        for (let k = 1; k < missingColors.length-1; k++) {
+                            missingColors[k].style.borderColor = "red"
+                        }
+                        break;
+                }
+            }
             this.setState({
                 showModal : "showModal",
-                modalInfo : [rowLog, columnLog, topLog, rightLog, bottomLog, leftLog]
+                modalInfo : [duplicate, missing, clue]
             })
         } else {
-            this.winConditionMet();
+            this.submitCompletion();
         }
     }
 
@@ -134,6 +172,57 @@ class SpeckleSpacklePlay extends Component {
             modalInfo : [this.state.timer]
         })
         clearInterval(this.timeInt);
+    }
+
+    submitCompletion(req, res) {
+        Axios.post(this.POST_URL_EXT, {
+            //Calculate the completion time by the number of user guesses x 10
+            completionTime : this.state.timer,
+            queryID : this.queryID,
+        }).then(this.successfulSubmit).catch(this.failedSubmit);
+    }
+
+    //On successful submit, open the WinModal to notify the user of their win, of their score, and of successful submittal
+    successfulSubmit() {
+        this.setState({
+            showModal : "showModal",
+            modalInfo : [this.state.timer],
+            headers: {
+                'Access-Control-Allow-Origin': 'http://localhost:4000'
+            }
+        })
+        clearInterval(this.timeInt);
+    }
+
+    //On failed submit, open the WinModal to notify the user they won and notify them there was an issue submitting their score
+    failedSubmit() {
+        this.setState({
+            error_handler : "Unfortunately, there was an issue submitting your score.",
+            modalInfo : [this.state.timer],
+            showModal : "showModal",
+            headers: {
+                'Access-Control-Allow-Origin': 'http://localhost:4000'
+            }
+        })
+        clearInterval(this.timeInt);
+    }
+
+    removeErrors() {
+        const { gameInfo } = this.state;
+        for (let i = 0; i < gameInfo.gameGrid.length; i++) {
+            gameInfo.gameGrid[i].error = false;
+        }
+        this.setState({
+            gameInfo : {...gameInfo}
+        })
+        const allSquares = document.querySelectorAll('div[name=square]')
+        for (let i = 0; i < allSquares.length; i++) {
+            allSquares[i].style.borderColor = 'lightgrey'
+        }
+        const allClues = document.querySelectorAll('div[name=clue]')
+        for (let i = 0; i < allClues.length; i++) {
+            allClues[i].style.borderColor = 'lightgrey'
+        }
     }
 
     checkLeftClues(gameInfo, outerGridSize) {
@@ -146,7 +235,9 @@ class SpeckleSpacklePlay extends Component {
                     k++
                 }
                 if (gameInfo.gameGrid[i]["colorNum"] !== gameInfo.gameGrid[k]["colorNum"]) {
-                    leftLog.push(`A clue condition in row ${row} is not met.`)
+                    leftLog.push({errorType:'clue', location: `row${row}`})
+                    gameInfo.gameGrid[i].error = true;
+                    // gameInfo.gameGrid[k].error = true;
                 } 
             }
         }
@@ -163,7 +254,9 @@ class SpeckleSpacklePlay extends Component {
                     k--
                 }
                 if (gameInfo.gameGrid[i]["colorNum"] !== gameInfo.gameGrid[k]["colorNum"]) {
-                    rightLog.push(`A clue condition in row ${row} is not met.`)
+                    rightLog.push({errorType:'clue', location: `row${row}`});
+                    gameInfo.gameGrid[i].error = true;
+                    // gameInfo.gameGrid[k].error = true;
                 } 
             }
         }
@@ -180,7 +273,9 @@ class SpeckleSpacklePlay extends Component {
                     k += outerGridSize;
                 }
                 if (gameInfo.gameGrid[i]["colorNum"] !== gameInfo.gameGrid[k]["colorNum"]) {
-                    topLog.push(`A clue condition in column ${i} is not met.`)
+                    topLog.push({errorType:'clue', location: `column${i}`})
+                    gameInfo.gameGrid[i].error = true;
+                    // gameInfo.gameGrid[k].error = true;
                 } 
             }
         }
@@ -198,7 +293,9 @@ class SpeckleSpacklePlay extends Component {
                     k -= outerGridSize;
                 }
                 if (gameInfo.gameGrid[i]["colorNum"] !== gameInfo.gameGrid[k]["colorNum"]) {
-                    bottomLog.push(`A clue condition in column ${column} is not met.`)
+                    bottomLog.push({errorType:'clue', location: `column${column}`})
+                    gameInfo.gameGrid[i].error = true;
+                    // gameInfo.gameGrid[k].error = true;
                 } 
             }
         }
@@ -214,14 +311,14 @@ class SpeckleSpacklePlay extends Component {
                 if (gameGrid[k].colorNum !== "color0") {
                     const indexOfColor = colorArray.indexOf(gameGrid[k].colorNum)
                     if (indexOfColor === -1) {
-                        rowLog.push(`In Row ${i} there was a duplicate of ${gameGrid[k].colorNum}`)
+                        rowLog.push({errorType:'duplicate', location: `row${i}`})
                     } else {
                         colorArray.splice(indexOfColor, 1);
                     }
                 }
             }
             if (colorArray.length > 0) {
-                rowLog.push(`In Row ${i}, you are missing ${colorArray.length} color(s)`)
+                rowLog.push({errorType:'missing', location: `row${i}`})
             } 
         }
         return rowLog;
@@ -237,14 +334,14 @@ class SpeckleSpacklePlay extends Component {
                 if (gameGrid[k].colorNum !== "color0") {
                     const indexOfColor = colorArray.indexOf(gameGrid[k].colorNum)
                     if (indexOfColor === -1) {
-                        columnLog.push(`In Column ${i} there was a duplicate of ${gameGrid[k].colorNum}`)
+                        columnLog.push({errorType:'duplicate', location: `column${i}`})
                     } else {
                         colorArray.splice(indexOfColor, 1);
                     }
                 }
             }
             if (colorArray.length > 0) {
-                columnLog.push(`In Column ${i}, you are missing ${colorArray.length} color(s)`)
+                columnLog.push({errorType:'missing', location: `column${i}`})
             } 
         }
         return columnLog;
@@ -255,10 +352,10 @@ class SpeckleSpacklePlay extends Component {
         if (this.state.gameInfo === null) {
             return <h1>Loading...</h1>
         }
-        const { gameInfo, timer } = this.state
+        const { gameInfo, timer, error_handler } = this.state
         return (
             <div className="pageContainer">
-                <PlayCheckModal info={this.state.modalInfo} showModal={this.state.showModal} closeModal={() => {this.close()}} />
+                <PlayCheckModal error={error_handler} info={this.state.modalInfo} showModal={this.state.showModal} closeModal={() => {this.close()}} />
                 <div className="gutter align-items-center justify-content-center text-center">
                     <i className="fa fa-clock-o swatch m-1" style={{color: "white"}}></i>
                     <h3 style={{fontSize: "2rem", position:"absolute", opacity:".8"}}>{timer}</h3>
@@ -267,9 +364,6 @@ class SpeckleSpacklePlay extends Component {
                     <GameGridPlay gameInfo={{...gameInfo}} callback={this.gridIndexCallback} />
                 </div>
                 <div className="gutter align-items-center">
-                    <div>
-                        <button onClick={this.evaluateAnswer} className="btn btn-outline-primary justify-content-center align-items-center">Check</button>
-                    </div>
                 </div>
             </div>
         )

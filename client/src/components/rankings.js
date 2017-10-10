@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
-import DummyData from './puzzle_dummy_data';
 import PlayMenuModal from '../play_menu_modal';
 import PageTitle from './page_title';
-import axios from 'axios';
-import rankings_dummy_data from './rankings_dummy_data';
+import Axios from 'axios';
 
+Axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:4000';
+Axios.defaults.withCredentials = true;
 class Rankings extends Component {
     constructor(props) {
         super(props);
         this.state = {
             modalInfo : null,
             showModal : "noModal",
-            data: rankings_dummy_data
+            sortField : null,
+            data: null
         }
-        this.BASE_URL = '/users';
+        this.URL_EXT = '/getRankings';
         this.QUERY_KEY = 'retrieve';
-        this.QUERY_VAL = 'recent10';
+        this.QUERY_VAL = 'user';
         this.updateData = this.updateData.bind(this);
     }
 
@@ -33,34 +34,50 @@ class Rankings extends Component {
     }
 
     componentWillMount() {
-        // this.getData();
-        this.sortData("composite_solver_ranking")
-    }
-
-    sortData(field) {
-        const { data } = this.state;
-        console.log("Data", data, "and Field", field)
-        data.sort(function(a,b) {return a[field] - b[field]});
-        this.setState({
-            data : [...data]
-        })
+        this.getData();
     }
 
     getData() {
-        axios.get(this.BASE_URL + '?' + this.QUERY_KEY + '=' + this.QUERY_VAL).then(this.updateData).catch(err => {
-            console.log("Error getting 10 most recent puzzles: ", err);
+        console.log("I'm getting Data!")
+        Axios.get(this.URL_EXT + '?' + this.QUERY_KEY + '=' + this.QUERY_VAL).then(this.updateData).catch(err => {
+            console.log("Error Loading Rankings: ", err);
         });
     }
 
     updateData(response){
-        const receivedData = response.data.data
+        console.log(response);
+        const receivedData = response.data.data;
+        console.log(receivedData);
         this.setState({
             data: receivedData
+        });
+        this.sortData("composite_solver_ranking")
+    }
+
+    sortData(field) {
+        if (field === this.state.sortField) {
+            this.sortDataReverse(field);
+            return;
+        }
+        const { data } = this.state;
+        data.sort(function(a,b) {return a[field] - b[field]});
+        this.setState({
+            data : [...data],
+            sortField : field
+        })
+    }
+
+    sortDataReverse(field) {
+        const { data } = this.state;
+        data.sort(function(a,b) {return b[field] - a[field]});
+        this.setState({
+            data : [...data],
+            sortField : field
         })
     }
 
     render() {
-        const { data } = this.state
+        const { data, sortField } = this.state
         if (data === null) {
             return <h1>Loading...</h1>
         } else {
@@ -70,7 +87,6 @@ class Rankings extends Component {
                         <td>{item.username}</td>
                         <td className="text-center">{item.composite_solver_ranking}</td>
                         <td className="text-center">{item.composite_creator_ranking}</td>
-                        <td className="text-center">{item.composite_gladiator_ranking}</td>
                     </tr>
                 )
             })
@@ -81,9 +97,8 @@ class Rankings extends Component {
                         <thead>
                             <tr>
                                 <th className="text-center">User</th>
-                                <th className="text-center" onClick={() => {this.sortData("composite_solver_ranking")}} >Solver Rank</th>
-                                <th className="text-center" onClick={() => {this.sortData("composite_creator_ranking")}}>Creator Rank</th>
-                                <th className="text-center" onClick={() => {this.sortData("composite_gladiator_ranking")}}>Gladiator Rank</th>
+                                <th className="text-center" onClick={() => {this.sortData("composite_solver_ranking")}} style={{backgroundColor: (sortField === 'composite_solver_ranking' ? 'grey' : '') }}>Solver Rank</th>
+                                <th className="text-center" onClick={() => {this.sortData("composite_creator_ranking")}} style={{backgroundColor: (sortField === 'composite_creator_ranking' ? 'grey' : '') }}>Creator Rank</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -24,22 +24,6 @@ class SpeckleSpackleCreate extends Component {
         this.gridIndexCallback = this.gridIndexCallback.bind(this);
         this.clueIndexCallback = this.clueIndexCallback.bind(this);
         this.chooseRandomColor = this.chooseRandomColor.bind(this);
-        this.gutterStyle = {
-            display: "flex",
-            flexFlow: "column",
-            justifyContent: "space-around",
-            height: '100vh',
-            width: '15vw',
-            overflow: 'hidden'
-        }
-        this.mainDisplayStyle = {
-            display: "flex",
-            justifyContent: "middle",
-            alignItems: "middle",
-            height: '100vh',
-            width: '70vw',
-            overflow: 'hidden'
-        }
     }
 
     componentDidMount() {
@@ -72,6 +56,7 @@ class SpeckleSpackleCreate extends Component {
                             name : 'clue',
                             className : `row${rowCounter} column${columnCounter}`,
                             colorNum : 'color0',
+                            error : false,
                             opacity : 1
                         }
                     }
@@ -81,6 +66,7 @@ class SpeckleSpackleCreate extends Component {
                         name : 'square',
                         className : `row${rowCounter} column${columnCounter}`, 
                         colorNum : 'color0',
+                        error : false,
                         opacity : 1
                     }
                 }
